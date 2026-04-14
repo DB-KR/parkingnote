@@ -6,17 +6,18 @@
     <title>ParkNote Pro</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&family=Space+Grotesk:wght@600&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         :root {
             --primary: #4f8ef7; --primary-dark: #3a6ed1; --bg: #f8f9fd; --card: #ffffff; 
             --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --radius: 20px; --danger: #ff4d4d;
+            --accent: #eef4ff;
         }
 
         @media (prefers-color-scheme: dark) {
-            :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155; }
+            :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155; --accent: #2d3a4f; }
         }
 
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow-x: hidden; -webkit-user-select: none; user-select: none; }
@@ -24,36 +25,32 @@
 
         .header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: flex-end; }
         .header h1 { font-family: 'Space Grotesk'; font-size: 24px; color: var(--primary); }
-        .gps-badge { font-size: 11px; padding: 4px 10px; background: var(--card); border-radius: 20px; color: var(--muted); border: 1px solid var(--border); transition: 0.2s; }
+        .gps-badge { font-size: 11px; padding: 4px 10px; background: var(--card); border-radius: 20px; color: var(--muted); border: 1px solid var(--border); }
         .gps-badge.ready { color: #fff; background: #22c55e; border-color: #22c55e; }
 
         .map-wrapper { padding: 0 15px; margin-bottom: 15px; }
         #map { height: 240px; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 1; }
 
         .input-section { padding: 0 15px; }
-
-        /* 입력창과 촬영버튼 나란히 배치 (핵심 수정) */
         .main-input-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .fields-column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .input-field { 
             width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 15px;
-            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none; transition: 0.2s; -webkit-appearance: none;
+            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none; transition: 0.2s;
         }
-        .input-field:focus { border-color: var(--primary); }
 
+        /* 촬영 버튼 배경색 및 시인성 강화 */
         .cam-btn-side { 
-            width: 90px; background: var(--card); color: var(--primary); border: 1px solid var(--primary); 
-            border-radius: 15px; font-weight: 700; font-size: 13px;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-            transition: 0.2s; position: relative;
+            width: 95px; background: var(--accent); color: var(--primary); border: 2px solid var(--primary); 
+            border-radius: 15px; font-weight: 800; font-size: 14px;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+            transition: 0.2s; position: relative; box-shadow: 0 4px 10px rgba(79, 142, 247, 0.1);
         }
         .cam-btn-side.cam-done { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 알람 설정 행 */
         .alarm-row { margin-bottom: 12px; }
         .alarm-box { background: var(--card); padding: 10px 15px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-        .alarm-select { border: none; background: none; font-size: 14px; color: var(--muted); font-weight: 600; outline: none; cursor: pointer; flex: 1; }
-        .alarm-select:not([value="0"]) { color: var(--primary); }
+        .alarm-select { border: none; background: none; font-size: 14px; color: var(--muted); font-weight: 600; outline: none; flex: 1; }
 
         .save-btn {
             background: var(--primary); color: white; border: none; border-radius: 18px;
@@ -61,25 +58,32 @@
             box-shadow: 0 6px 16px rgba(79, 142, 247, 0.2);
         }
 
-        .history-section { padding: 25px 0; }
+        /* 경과 시간 뱃지 스타일 */
+        .elapsed-badge {
+            background: var(--primary); color: white; padding: 6px 12px; border-radius: 12px;
+            font-size: 16px; font-weight: 800; display: inline-block; margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(79, 142, 247, 0.3);
+        }
+
+        .latest-record { padding: 25px 15px; }
+        .latest-card { background: var(--card); border-radius: var(--radius); padding: 22px; border: 2px solid var(--primary); box-shadow: 0 12px 30px rgba(79,142,247,0.15); }
+        .latest-img { width: 100%; height: 180px; border-radius: 12px; object-fit: cover; margin-bottom: 15px; border: 1px solid var(--border); }
+        .latest-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+        .latest-time { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+        .latest-memo { font-size: 14px; color: var(--primary); font-weight: 600; background: var(--accent); padding: 12px; border-radius: 12px; }
+
+        /* 히스토리 리스트 */
+        .history-section { padding-top: 10px; }
         .section-header { padding: 0 20px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
-
-        .latest-record { padding: 0 15px 25px; cursor: pointer; }
-        .latest-card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1.5px solid var(--primary); box-shadow: 0 10px 30px rgba(79,142,247,0.1); }
-        .latest-img { width: 100%; height: 160px; border-radius: 12px; object-fit: cover; margin-bottom: 15px; border: 1px solid var(--border); }
-        .latest-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
-        .latest-time { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-        .latest-memo { font-size: 14px; color: var(--primary); font-weight: 600; background: rgba(79,142,247,0.08); padding: 10px; border-radius: 10px; }
-
         .history-list { padding: 0 15px; }
         .history-item-container { position: relative; margin-bottom: 10px; border-radius: 15px; background: var(--danger); overflow: hidden; }
         .history-card { 
             background: var(--card); border-radius: 15px; padding: 12px;
             display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
-            position: relative; z-index: 2; transition: transform 0.3s ease-out; cursor: pointer;
+            position: relative; z-index: 2; transition: transform 0.3s ease-out;
         }
         .history-item-container.swiped .history-card { transform: translateX(-80px); }
-        .h-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--bg); border: 1px solid var(--border); }
+        .h-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); }
         .h-content { flex: 1; min-width: 0; }
         .h-loc { font-size: 14px; font-weight: 700; }
         .h-meta { font-size: 11px; color: var(--muted); }
@@ -89,18 +93,9 @@
             display: flex; align-items: center; justify-content: center; z-index: 1;
         }
 
-        .lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
-            z-index: 10000; display: none; align-items: center; justify-content: center;
-        }
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; }
         #lightbox-img { max-width: 95%; max-height: 90%; border-radius: 8px; }
-
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: rgba(30, 41, 59, 0.95); color: #fff; padding: 12px 25px; border-radius: 30px;
-            font-size: 14px; font-weight: 600; transition: 0.3s; z-index: 9999;
-            display: flex; align-items: center; justify-content: center; min-width: 200px;
-        }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: 600; transition: 0.3s; z-index: 9999; }
         .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
@@ -122,8 +117,8 @@
                     <input class="input-field" id="memo-input" placeholder="추가 메모 (기둥 뒤)">
                 </div>
                 <button class="cam-btn-side" id="cam-btn" onclick="document.getElementById('camera-input').click()">
-                    <span style="font-size:24px;">📷</span>
-                    <span id="cam-text">촬영</span>
+                    <span style="font-size:26px;">📷</span>
+                    <span id="cam-text">촬영하기</span>
                 </button>
             </div>
             <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
@@ -131,7 +126,7 @@
             <div class="alarm-row">
                 <div class="alarm-box">
                     <span>⏰</span>
-                    <select class="alarm-select" id="alarm-timer" onchange="this.setAttribute('value', this.value)">
+                    <select class="alarm-select" id="alarm-timer">
                         <option value="0">알람 없음</option>
                         <option value="30">30분 뒤 알람</option>
                         <option value="60">1시간 뒤 알람</option>
@@ -153,22 +148,19 @@
     </main>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <img id="lightbox-img" src="">
-</div>
-
-<div class="toast" id="toast">기록이 완료되었습니다</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src=""></div>
+<div class="toast" id="toast">저장 완료</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, marker, currentImgBase64 = "";
     let parkingHistory = [];
-    let touchStartX = 0, touchMoveX = 0, currentSwipedItem = null;
+    let touchStartX = 0, currentSwipedItem = null;
 
     window.onload = function() {
         initMap();
         loadHistory();
-        setInterval(checkAlarms, 20000);
+        setInterval(updateTimeAndAlarms, 30000); // 30초마다 경과 시간 및 알람 갱신
     };
 
     function initMap() {
@@ -177,10 +169,8 @@
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                if (!marker) {
-                    marker = L.marker([lat, lng]).addTo(map);
-                    map.setView([lat, lng], 17);
-                } else { marker.setLatLng([lat, lng]); }
+                if (!marker) { marker = L.marker([lat, lng]).addTo(map); map.setView([lat, lng], 17); }
+                else { marker.setLatLng([lat, lng]); }
                 const badge = document.getElementById('gps-status');
                 badge.textContent = "연결됨 (" + Math.round(pos.coords.accuracy) + "m)";
                 badge.classList.add('ready');
@@ -191,7 +181,6 @@
     document.getElementById('camera-input').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
-            const btn = document.getElementById('cam-btn');
             const txt = document.getElementById('cam-text');
             txt.textContent = "처리 중";
             const reader = new FileReader();
@@ -207,7 +196,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
-                    btn.classList.add('cam-done');
+                    document.getElementById('cam-btn').classList.add('cam-done');
                     txt.textContent = "완료";
                 };
             };
@@ -218,34 +207,53 @@
     function saveData() {
         if (!marker) { showToast("GPS 연결 대기 중..."); return; }
         const alarmMinutes = parseInt(document.getElementById('alarm-timer').value);
-        let alarmTime = alarmMinutes > 0 ? Date.now() + (alarmMinutes * 60 * 1000) : null;
-
+        const now = Date.now();
         const newRecord = {
-            id: Date.now(),
+            id: now,
+            timestamp: now,
             location: document.getElementById('loc-input').value || "미지정 구역",
             memo: document.getElementById('memo-input').value || "메모 없음",
-            time: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            timeStr: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
             photo: currentImgBase64,
             lat: marker.getLatLng().lat,
             lng: marker.getLatLng().lng,
-            alarmTime: alarmTime,
+            alarmTime: alarmMinutes > 0 ? now + (alarmMinutes * 60 * 1000) : null,
             alarmDone: false
         };
-
-        closeAnySwipedItem();
         parkingHistory.unshift(newRecord);
         if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
         renderHistory();
         showToast("주차 정보가 저장되었습니다");
-        
+        resetForm();
+    }
+
+    function resetForm() {
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
         document.getElementById('alarm-timer').value = "0";
-        const btn = document.getElementById('cam-btn');
-        btn.classList.remove('cam-done');
-        document.getElementById('cam-text').textContent = "촬영";
+        document.getElementById('cam-btn').classList.remove('cam-done');
+        document.getElementById('cam-text').textContent = "촬영하기";
         currentImgBase64 = "";
+    }
+
+    function calculateElapsed(ts) {
+        const diff = Date.now() - ts;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return hours > 0 ? `${hours}시간 ${mins}분 경과` : `${mins}분 경과`;
+    }
+
+    function updateTimeAndAlarms() {
+        if (parkingHistory.length > 0) renderHistory();
+        const now = Date.now();
+        parkingHistory.forEach(i => {
+            if (i.alarmTime && !i.alarmDone && now > i.alarmTime) {
+                alert(`🔔 주차 알람!\n[${i.location}] 주차 시간이 지났습니다.`);
+                i.alarmDone = true;
+                localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
+            }
+        });
     }
 
     function renderHistory() {
@@ -254,19 +262,18 @@
         const prevDiv = document.getElementById('previous-history-area');
         latestDiv.innerHTML = ""; listDiv.innerHTML = ""; prevDiv.style.display = 'none';
 
-        if (parkingHistory.length === 0) {
-            latestDiv.innerHTML = "<div style='text-align:center; color:var(--muted); padding:40px; font-size:14px;'>기록이 없습니다.</div>";
-            return;
-        }
+        if (parkingHistory.length === 0) return;
 
         const latest = parkingHistory[0];
+        const elapsed = calculateElapsed(latest.timestamp);
         const latestCard = document.createElement('div');
         latestCard.className = 'latest-card';
         latestCard.onclick = () => { map.setView([latest.lat, latest.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); };
         latestCard.innerHTML = `
+            <div class="elapsed-badge">⏱ ${elapsed}</div>
             ${latest.photo ? `<img src="${latest.photo}" class="latest-img" onclick="openLightbox(event, '${latest.photo}')">` : ''}
             <div class="latest-title">${latest.location}</div>
-            <div class="latest-time">${latest.time}</div>
+            <div class="latest-time">${latest.timeStr} 📍 터치 시 지도 이동</div>
             <div class="latest-memo">${latest.memo}</div>
         `;
         const wrap = document.createElement('div'); wrap.className = 'latest-record'; wrap.appendChild(latestCard);
@@ -283,10 +290,9 @@
                 card.innerHTML = `
                     <img src="${item.photo || 'https://via.placeholder.com/60'}" class="h-img" onclick="openLightbox(event, '${item.photo}')">
                     <div class="h-content">
-                        <div class="h-meta">${item.time}</div>
+                        <div class="h-meta">${item.timeStr}</div>
                         <div class="h-loc">${item.location}</div>
                     </div>
-                    <div style="font-size:12px; color:var(--muted);">👉</div>
                 `;
                 const db = document.createElement('button'); db.className = 'swipe-delete-btn'; db.textContent = "삭제";
                 db.onclick = (e) => deleteRecord(e, item.id);
@@ -295,25 +301,15 @@
         }
     }
 
-    function openLightbox(e, img) { e.stopPropagation(); const lb = document.getElementById('lightbox'); document.getElementById('lightbox-img').src = img; lb.style.display = 'flex'; }
+    function openLightbox(e, img) { e.stopPropagation(); document.getElementById('lightbox-img').src = img; document.getElementById('lightbox').style.display = 'flex'; }
     function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-
     function addSwipeEvents(card, cont) {
         card.addEventListener('touchstart', (e) => { closeAnySwipedItem(); touchStartX = e.touches[0].clientX; card.style.transition = 'none'; }, { passive: true });
-        card.addEventListener('touchmove', (e) => { touchMoveX = e.touches[0].clientX; let off = touchMoveX - touchStartX; if (off < 0 && off > -120) card.style.transform = `translateX(${off}px)`; }, { passive: true });
-        card.addEventListener('touchend', () => { card.style.transition = 'transform 0.3s ease-out'; let off = touchMoveX - touchStartX; if (off < -40) { cont.classList.add('swiped'); card.style.transform = 'translateX(-80px)'; currentSwipedItem = cont; } else { card.style.transform = 'translateX(0)'; } });
+        card.addEventListener('touchmove', (e) => { let off = e.touches[0].clientX - touchStartX; if (off < 0 && off > -120) card.style.transform = `translateX(${off}px)`; }, { passive: true });
+        card.addEventListener('touchend', (e) => { card.style.transition = 'transform 0.3s ease-out'; if (e.changedTouches[0].clientX - touchStartX < -40) { cont.classList.add('swiped'); card.style.transform = 'translateX(-80px)'; currentSwipedItem = cont; } else { card.style.transform = 'translateX(0)'; } });
     }
-
     function closeAnySwipedItem() { if (currentSwipedItem) { currentSwipedItem.classList.remove('swiped'); currentSwipedItem.querySelector('.history-card').style.transform = 'translateX(0)'; currentSwipedItem = null; } }
-
-    function deleteRecord(e, id) { e.stopPropagation(); parkingHistory = parkingHistory.filter(i => i.id !== id); localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory)); renderHistory(); showToast("삭제되었습니다"); }
-
-    function checkAlarms() {
-        const now = Date.now(); let chg = false;
-        parkingHistory.forEach(i => { if (i.alarmTime && !i.alarmDone && now > i.alarmTime) { alert(`🔔 주차 알람!\n[${i.location}] 위치를 확인하세요.`); i.alarmDone = true; chg = true; } });
-        if (chg) { localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory)); renderHistory(); }
-    }
-
+    function deleteRecord(e, id) { e.stopPropagation(); parkingHistory = parkingHistory.filter(i => i.id !== id); localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory)); renderHistory(); }
     function loadHistory() { const saved = localStorage.getItem('parkNoteHistory'); if (saved) { parkingHistory = JSON.parse(saved); renderHistory(); } }
     function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
