@@ -21,35 +21,45 @@
         }
 
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow-x: hidden; -webkit-user-select: none; user-select: none; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 50px; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 50px; }
 
+        /* 헤더 */
         .header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: flex-end; }
         .header h1 { font-family: 'Space Grotesk'; font-size: 24px; color: var(--primary); }
         .gps-badge { font-size: 11px; padding: 4px 10px; background: var(--card); border-radius: 20px; color: var(--muted); border: 1px solid var(--border); }
         .gps-badge.ready { color: #fff; background: #22c55e; border-color: #22c55e; }
 
+        /* 지도 */
         .map-wrapper { padding: 0 15px; margin-bottom: 15px; }
         #map { height: 240px; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 1; }
 
+        /* 입력 섹션 */
         .input-section { padding: 0 15px; }
         .main-input-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .fields-column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .input-field { 
             width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 15px;
-            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none;
+            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none; border: 1px solid var(--border);
         }
 
         .cam-btn-side { 
             width: 95px; background: var(--accent); color: var(--primary); border: 2px solid var(--primary); 
             border-radius: 15px; font-weight: 800; font-size: 14px;
             cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-            transition: 0.2s; position: relative;
+            transition: 0.2s;
         }
-        .cam-btn-side.cam-done { background: var(--primary); color: white; border-color: var(--primary); }
+        .cam-btn-side.cam-done { background: var(--primary); color: white; }
 
-        .alarm-row { margin-bottom: 12px; }
-        .alarm-box { background: var(--card); padding: 10px 15px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-        .alarm-select { border: none; background: none; font-size: 14px; color: var(--muted); font-weight: 600; outline: none; flex: 1; }
+        /* 알람 설정 개선 (날짜/시간 선택) */
+        .alarm-card { 
+            background: var(--card); padding: 12px 15px; border-radius: 15px; border: 1px solid var(--border); 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+        }
+        .alarm-card label { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+        .dt-picker { 
+            border: none; background: none; font-family: inherit; font-size: 14px; color: var(--primary); 
+            font-weight: 600; outline: none; flex: 1; text-align: right;
+        }
 
         .save-btn {
             background: var(--primary); color: white; border: none; border-radius: 18px;
@@ -57,7 +67,7 @@
             box-shadow: 0 6px 16px rgba(79, 142, 247, 0.2);
         }
 
-        /* 최근 주차 카드 */
+        /* 최근 주차 및 히스토리 */
         .latest-record { padding: 25px 15px; }
         .elapsed-badge { background: var(--primary); color: white; padding: 6px 12px; border-radius: 12px; font-size: 15px; font-weight: 800; display: inline-block; margin-bottom: 12px; }
         .latest-card { background: var(--card); border-radius: var(--radius); padding: 22px; border: 2px solid var(--primary); box-shadow: 0 12px 30px rgba(79,142,247,0.15); }
@@ -65,36 +75,17 @@
         .latest-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
         .latest-memo { font-size: 14px; color: var(--primary); font-weight: 600; background: var(--accent); padding: 12px; border-radius: 12px; }
 
-        /* 히스토리 리스트 & 슬라이드 삭제 핵심 CSS */
         .history-section { padding-top: 10px; }
-        .section-header { padding: 0 20px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
+        .section-header { padding: 0 20px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
         .history-list { padding: 0 15px; }
-        
-        .history-item-container { 
-            position: relative; margin-bottom: 12px; border-radius: 18px; 
-            background: var(--danger); overflow: hidden; /* 배경이 빨간색 */
-            touch-action: pan-y; /* 세로 스크롤 허용, 가로 가로챔 */
-        }
-        
+        .history-item-container { position: relative; margin-bottom: 12px; border-radius: 18px; background: var(--danger); overflow: hidden; }
         .history-card { 
-            background: var(--card); border-radius: 18px; padding: 14px;
-            display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
-            position: relative; z-index: 2; 
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 부드러운 애니메이션 */
-            will-change: transform;
+            background: var(--card); border-radius: 18px; padding: 14px; display: flex; gap: 12px; align-items: center; 
+            border: 1px solid var(--border); position: relative; z-index: 2; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
-        .h-img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); }
-        .h-content { flex: 1; min-width: 0; }
-        .h-loc { font-size: 15px; font-weight: 700; }
-        .h-meta { font-size: 11px; color: var(--muted); }
-        
-        .swipe-delete-btn {
-            position: absolute; top: 0; right: 0; height: 100%; width: 85px;
-            background: var(--danger); color: white; border: none; font-size: 14px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; z-index: 1;
-        }
+        .swipe-delete-btn { position: absolute; top: 0; right: 0; height: 100%; width: 85px; background: var(--danger); color: white; border: none; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1; }
 
+        /* 기타 */
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; }
         #lightbox-img { max-width: 95%; max-height: 90%; border-radius: 8px; }
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: 600; transition: 0.3s; z-index: 9999; }
@@ -125,16 +116,10 @@
             </div>
             <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
 
-            <div class="alarm-row">
-                <div class="alarm-box">
-                    <span>⏰</span>
-                    <select class="alarm-select" id="alarm-timer">
-                        <option value="0">알람 없음</option>
-                        <option value="30">30분 뒤 알람</option>
-                        <option value="60">1시간 뒤 알람</option>
-                        <option value="120">2시간 뒤 알람</option>
-                    </select>
-                </div>
+            <div class="alarm-card">
+                <span>⏰</span>
+                <label>출차 알람 설정</label>
+                <input type="datetime-local" class="dt-picker" id="alarm-time-picker">
             </div>
 
             <button class="save-btn" onclick="saveData()">📍 주차 정보 저장</button>
@@ -157,17 +142,21 @@
 <script>
     let map, marker, currentImgBase64 = "";
     let parkingHistory = [];
-    
-    // 슬라이드 삭제를 위한 변수
-    let startX = 0;
-    let currentX = 0;
-    let activeContainer = null;
+    let startX = 0, currentX = 0, activeContainer = null;
 
     window.onload = function() {
         initMap();
         loadHistory();
         setInterval(updateTimeAndAlarms, 30000);
     };
+
+    // 진동 피드백 함수 (핵심 개선)
+    function triggerVibration(type) {
+        if (!navigator.vibrate) return;
+        if (type === 'success') navigator.vibrate(50);
+        if (type === 'delete') navigator.vibrate([30, 50, 30]);
+        if (type === 'notify') navigator.vibrate([100, 100, 100]);
+    }
 
     function initMap() {
         map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 15);
@@ -187,6 +176,7 @@
     document.getElementById('camera-input').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
+            triggerVibration('success');
             const txt = document.getElementById('cam-text');
             txt.textContent = "처리 중";
             const reader = new FileReader();
@@ -212,8 +202,11 @@
 
     function saveData() {
         if (!marker) { showToast("GPS 연결 대기 중..."); return; }
-        const alarmMinutes = parseInt(document.getElementById('alarm-timer').value);
+        
+        triggerVibration('success');
+        const customAlarm = document.getElementById('alarm-time-picker').value;
         const now = Date.now();
+        
         const newRecord = {
             id: now,
             timestamp: now,
@@ -223,9 +216,10 @@
             photo: currentImgBase64,
             lat: marker.getLatLng().lat,
             lng: marker.getLatLng().lng,
-            alarmTime: alarmMinutes > 0 ? now + (alarmMinutes * 60 * 1000) : null,
+            alarmTime: customAlarm ? new Date(customAlarm).getTime() : null,
             alarmDone: false
         };
+        
         parkingHistory.unshift(newRecord);
         if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
@@ -237,7 +231,7 @@
     function resetForm() {
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
-        document.getElementById('alarm-timer').value = "0";
+        document.getElementById('alarm-time-picker').value = "";
         document.getElementById('cam-btn').classList.remove('cam-done');
         document.getElementById('cam-text').textContent = "촬영하기";
         currentImgBase64 = "";
@@ -255,7 +249,8 @@
         const now = Date.now();
         parkingHistory.forEach(i => {
             if (i.alarmTime && !i.alarmDone && now > i.alarmTime) {
-                alert(`🔔 주차 알람!\n[${i.location}] 주차 시간이 지났습니다.`);
+                triggerVibration('notify');
+                alert(`🔔 출차 알람!\n[${i.location}] 설정하신 시간이 되었습니다.`);
                 i.alarmDone = true;
                 localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
             }
@@ -274,12 +269,20 @@
         const latestCard = document.createElement('div');
         latestCard.className = 'latest-card';
         latestCard.onclick = () => { map.setView([latest.lat, latest.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); };
+        
+        let alarmBadge = "";
+        if (latest.alarmTime && !latest.alarmDone) {
+            const ad = new Date(latest.alarmTime);
+            alarmBadge = `<div style="font-size:12px; color:var(--danger); font-weight:700; margin-bottom:8px;">🔔 알람 예약: ${ad.getHours()}:${ad.getMinutes().toString().padStart(2, '0')}</div>`;
+        }
+
         latestCard.innerHTML = `
             <div class="elapsed-badge">⏱ ${calculateElapsed(latest.timestamp)}</div>
+            ${alarmBadge}
             ${latest.photo ? `<img src="${latest.photo}" class="latest-img" onclick="openLightbox(event, '${latest.photo}')">` : ''}
             <div class="latest-title">${latest.location}</div>
             <div class="latest-memo">${latest.memo}</div>
-            <div style="font-size:11px; color:var(--muted); margin-top:10px;">저장: ${latest.timeStr}</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:10px;">저장 시각: ${latest.timeStr}</div>
         `;
         latestDiv.appendChild(latestCard);
 
@@ -289,85 +292,24 @@
                 const item = parkingHistory[i];
                 const cont = document.createElement('div'); cont.className = 'history-item-container';
                 const card = document.createElement('div'); card.className = 'history-card';
+                card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; card.style.transition = 'none'; });
+                card.addEventListener('touchmove', (e) => { currentX = e.touches[0].clientX; let diff = currentX - startX; if (diff < 0 && diff > -100) card.style.transform = `translateX(${diff}px)`; });
+                card.addEventListener('touchend', () => { card.style.transition = '0.3s'; if (currentX - startX < -50) { card.style.transform = 'translateX(-85px)'; activeContainer = cont; } else { card.style.transform = 'translateX(0px)'; } });
                 
-                // 슬라이드 이벤트 바인딩
-                card.addEventListener('touchstart', handleTouchStart, {passive: true});
-                card.addEventListener('touchmove', handleTouchMove, {passive: true});
-                card.addEventListener('touchend', handleTouchEnd);
-
-                card.onclick = () => { 
-                    if(cont.style.transform === "" || cont.querySelector('.history-card').style.transform === "translateX(0px)") {
-                        map.setView([item.lat, item.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); 
-                    }
-                };
-
-                card.innerHTML = `
-                    <img src="${item.photo || 'https://via.placeholder.com/60'}" class="h-img" onclick="openLightbox(event, '${item.photo}')">
-                    <div class="h-content">
-                        <div class="h-meta">${item.timeStr}</div>
-                        <div class="h-loc">${item.location}</div>
-                    </div>
-                `;
-                const delBtn = document.createElement('button');
-                delBtn.className = 'swipe-delete-btn';
-                delBtn.textContent = "삭제";
-                delBtn.onclick = (e) => { e.stopPropagation(); deleteRecord(item.id); };
-
-                cont.appendChild(card);
-                cont.appendChild(delBtn);
-                listDiv.appendChild(cont);
+                card.onclick = () => { if(card.style.transform === "translateX(0px)" || !card.style.transform) { map.setView([item.lat, item.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); } };
+                card.innerHTML = `<img src="${item.photo || 'https://via.placeholder.com/60'}" class="h-img" onclick="openLightbox(event, '${item.photo}')"><div class="h-content"><div class="h-meta">${item.timeStr}</div><div class="h-loc">${item.location}</div></div>`;
+                const delBtn = document.createElement('button'); delBtn.className = 'swipe-delete-btn'; delBtn.textContent = "삭제";
+                delBtn.onclick = (e) => { e.stopPropagation(); triggerVibration('delete'); deleteRecord(item.id); };
+                cont.appendChild(card); cont.appendChild(delBtn); listDiv.appendChild(cont);
             }
         }
     }
 
-    // 슬라이드 삭제 핸들러들
-    function handleTouchStart(e) {
-        startX = e.touches[0].clientX;
-        const card = e.currentTarget;
-        card.style.transition = 'none';
-        
-        // 이전에 열려있던 게 있다면 닫기
-        if (activeContainer && activeContainer !== card.parentElement) {
-            activeContainer.querySelector('.history-card').style.transform = 'translateX(0px)';
-        }
-    }
-
-    function handleTouchMove(e) {
-        currentX = e.touches[0].clientX;
-        const diff = currentX - startX;
-        const card = e.currentTarget;
-        
-        // 왼쪽으로 밀 때만 (최대 85px)
-        if (diff < 0 && diff > -120) {
-            card.style.transform = `translateX(${diff}px)`;
-        }
-    }
-
-    function handleTouchEnd(e) {
-        const card = e.currentTarget;
-        const cont = card.parentElement;
-        card.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        
-        const diff = currentX - startX;
-        
-        if (diff < -50) { // 50px 이상 밀었으면 열기
-            card.style.transform = 'translateX(-85px)';
-            activeContainer = cont;
-        } else { // 아니면 닫기
-            card.style.transform = 'translateX(0px)';
-            activeContainer = null;
-        }
-        startX = 0;
-        currentX = 0;
-    }
-
     function deleteRecord(id) {
-        if(confirm("이 주차 기록을 삭제할까요?")) {
-            parkingHistory = parkingHistory.filter(i => i.id !== id);
-            localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
-            renderHistory();
-            showToast("삭제되었습니다");
-        }
+        parkingHistory = parkingHistory.filter(i => i.id !== id);
+        localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
+        renderHistory();
+        showToast("삭제 완료");
     }
 
     function openLightbox(e, img) { e.stopPropagation(); document.getElementById('lightbox-img').src = img; document.getElementById('lightbox').style.display = 'flex'; }
