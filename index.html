@@ -8,7 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&family=Space+Grotesk:wght@600&display=swap');
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
         
         :root {
             --primary: #4f8ef7; --primary-dark: #3a6ed1; --bg: #f8f9fd; --card: #ffffff; 
@@ -21,7 +21,7 @@
         }
 
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow-x: hidden; -webkit-user-select: none; user-select: none; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 30px; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 50px; }
 
         .header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: flex-end; }
         .header h1 { font-family: 'Space Grotesk'; font-size: 24px; color: var(--primary); }
@@ -36,15 +36,14 @@
         .fields-column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .input-field { 
             width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 15px;
-            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none; transition: 0.2s;
+            padding: 13px 15px; font-size: 15px; color: var(--text); outline: none;
         }
 
-        /* 촬영 버튼 배경색 및 시인성 강화 */
         .cam-btn-side { 
             width: 95px; background: var(--accent); color: var(--primary); border: 2px solid var(--primary); 
             border-radius: 15px; font-weight: 800; font-size: 14px;
             cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-            transition: 0.2s; position: relative; box-shadow: 0 4px 10px rgba(79, 142, 247, 0.1);
+            transition: 0.2s; position: relative;
         }
         .cam-btn-side.cam-done { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -58,38 +57,41 @@
             box-shadow: 0 6px 16px rgba(79, 142, 247, 0.2);
         }
 
-        /* 경과 시간 뱃지 스타일 */
-        .elapsed-badge {
-            background: var(--primary); color: white; padding: 6px 12px; border-radius: 12px;
-            font-size: 16px; font-weight: 800; display: inline-block; margin-bottom: 10px;
-            box-shadow: 0 4px 10px rgba(79, 142, 247, 0.3);
-        }
-
+        /* 최근 주차 카드 */
         .latest-record { padding: 25px 15px; }
+        .elapsed-badge { background: var(--primary); color: white; padding: 6px 12px; border-radius: 12px; font-size: 15px; font-weight: 800; display: inline-block; margin-bottom: 12px; }
         .latest-card { background: var(--card); border-radius: var(--radius); padding: 22px; border: 2px solid var(--primary); box-shadow: 0 12px 30px rgba(79,142,247,0.15); }
         .latest-img { width: 100%; height: 180px; border-radius: 12px; object-fit: cover; margin-bottom: 15px; border: 1px solid var(--border); }
-        .latest-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
-        .latest-time { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+        .latest-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
         .latest-memo { font-size: 14px; color: var(--primary); font-weight: 600; background: var(--accent); padding: 12px; border-radius: 12px; }
 
-        /* 히스토리 리스트 */
+        /* 히스토리 리스트 & 슬라이드 삭제 핵심 CSS */
         .history-section { padding-top: 10px; }
         .section-header { padding: 0 20px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
         .history-list { padding: 0 15px; }
-        .history-item-container { position: relative; margin-bottom: 10px; border-radius: 15px; background: var(--danger); overflow: hidden; }
-        .history-card { 
-            background: var(--card); border-radius: 15px; padding: 12px;
-            display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
-            position: relative; z-index: 2; transition: transform 0.3s ease-out;
+        
+        .history-item-container { 
+            position: relative; margin-bottom: 12px; border-radius: 18px; 
+            background: var(--danger); overflow: hidden; /* 배경이 빨간색 */
+            touch-action: pan-y; /* 세로 스크롤 허용, 가로 가로챔 */
         }
-        .history-item-container.swiped .history-card { transform: translateX(-80px); }
-        .h-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); }
+        
+        .history-card { 
+            background: var(--card); border-radius: 18px; padding: 14px;
+            display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
+            position: relative; z-index: 2; 
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 부드러운 애니메이션 */
+            will-change: transform;
+        }
+        
+        .h-img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); }
         .h-content { flex: 1; min-width: 0; }
-        .h-loc { font-size: 14px; font-weight: 700; }
+        .h-loc { font-size: 15px; font-weight: 700; }
         .h-meta { font-size: 11px; color: var(--muted); }
+        
         .swipe-delete-btn {
-            position: absolute; top: 0; right: 0; height: 100%; width: 80px;
-            background: var(--danger); color: white; border: none; font-size: 14px; font-weight: 700;
+            position: absolute; top: 0; right: 0; height: 100%; width: 85px;
+            background: var(--danger); color: white; border: none; font-size: 14px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; z-index: 1;
         }
 
@@ -104,7 +106,7 @@
 <div class="app-container">
     <header class="header">
         <h1>ParkNote<span>Pro</span></h1>
-        <div class="gps-badge" id="gps-status">GPS 수신 중...</div>
+        <div class="gps-badge" id="gps-status">GPS 대기 중...</div>
     </header>
 
     <main>
@@ -113,8 +115,8 @@
         <section class="input-section">
             <div class="main-input-row">
                 <div class="fields-column">
-                    <input class="input-field" id="loc-input" placeholder="주차 구역 (지하 1층 B-08)">
-                    <input class="input-field" id="memo-input" placeholder="추가 메모 (기둥 뒤)">
+                    <input class="input-field" id="loc-input" placeholder="주차 구역 (예: 지하 1층 B-08)">
+                    <input class="input-field" id="memo-input" placeholder="메모 (예: 기둥 뒤)">
                 </div>
                 <button class="cam-btn-side" id="cam-btn" onclick="document.getElementById('camera-input').click()">
                     <span style="font-size:26px;">📷</span>
@@ -141,7 +143,7 @@
         <section class="history-section">
             <div id="latest-record-area"></div>
             <div id="previous-history-area" style="display:none;">
-                <div class="section-header">이전 기록</div>
+                <div class="section-header">이전 기록 (밀어서 삭제)</div>
                 <div class="history-list" id="history-list"></div>
             </div>
         </section>
@@ -155,12 +157,16 @@
 <script>
     let map, marker, currentImgBase64 = "";
     let parkingHistory = [];
-    let touchStartX = 0, currentSwipedItem = null;
+    
+    // 슬라이드 삭제를 위한 변수
+    let startX = 0;
+    let currentX = 0;
+    let activeContainer = null;
 
     window.onload = function() {
         initMap();
         loadHistory();
-        setInterval(updateTimeAndAlarms, 30000); // 30초마다 경과 시간 및 알람 갱신
+        setInterval(updateTimeAndAlarms, 30000);
     };
 
     function initMap() {
@@ -197,7 +203,7 @@
                     ctx.drawImage(img, 0, 0, width, height);
                     currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
                     document.getElementById('cam-btn').classList.add('cam-done');
-                    txt.textContent = "완료";
+                    txt.textContent = "촬영 완료";
                 };
             };
             reader.readAsDataURL(file);
@@ -224,7 +230,7 @@
         if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
         renderHistory();
-        showToast("주차 정보가 저장되었습니다");
+        showToast("주차 위치가 저장되었습니다");
         resetForm();
     }
 
@@ -265,19 +271,17 @@
         if (parkingHistory.length === 0) return;
 
         const latest = parkingHistory[0];
-        const elapsed = calculateElapsed(latest.timestamp);
         const latestCard = document.createElement('div');
         latestCard.className = 'latest-card';
         latestCard.onclick = () => { map.setView([latest.lat, latest.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); };
         latestCard.innerHTML = `
-            <div class="elapsed-badge">⏱ ${elapsed}</div>
+            <div class="elapsed-badge">⏱ ${calculateElapsed(latest.timestamp)}</div>
             ${latest.photo ? `<img src="${latest.photo}" class="latest-img" onclick="openLightbox(event, '${latest.photo}')">` : ''}
             <div class="latest-title">${latest.location}</div>
-            <div class="latest-time">${latest.timeStr} 📍 터치 시 지도 이동</div>
             <div class="latest-memo">${latest.memo}</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:10px;">저장: ${latest.timeStr}</div>
         `;
-        const wrap = document.createElement('div'); wrap.className = 'latest-record'; wrap.appendChild(latestCard);
-        latestDiv.appendChild(wrap);
+        latestDiv.appendChild(latestCard);
 
         if (parkingHistory.length > 1) {
             prevDiv.style.display = 'block';
@@ -285,8 +289,18 @@
                 const item = parkingHistory[i];
                 const cont = document.createElement('div'); cont.className = 'history-item-container';
                 const card = document.createElement('div'); card.className = 'history-card';
-                card.onclick = () => { if(!cont.classList.contains('swiped')) { map.setView([item.lat, item.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); }};
-                addSwipeEvents(card, cont);
+                
+                // 슬라이드 이벤트 바인딩
+                card.addEventListener('touchstart', handleTouchStart, {passive: true});
+                card.addEventListener('touchmove', handleTouchMove, {passive: true});
+                card.addEventListener('touchend', handleTouchEnd);
+
+                card.onclick = () => { 
+                    if(cont.style.transform === "" || cont.querySelector('.history-card').style.transform === "translateX(0px)") {
+                        map.setView([item.lat, item.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); 
+                    }
+                };
+
                 card.innerHTML = `
                     <img src="${item.photo || 'https://via.placeholder.com/60'}" class="h-img" onclick="openLightbox(event, '${item.photo}')">
                     <div class="h-content">
@@ -294,22 +308,70 @@
                         <div class="h-loc">${item.location}</div>
                     </div>
                 `;
-                const db = document.createElement('button'); db.className = 'swipe-delete-btn'; db.textContent = "삭제";
-                db.onclick = (e) => deleteRecord(e, item.id);
-                cont.appendChild(card); cont.appendChild(db); listDiv.appendChild(cont);
+                const delBtn = document.createElement('button');
+                delBtn.className = 'swipe-delete-btn';
+                delBtn.textContent = "삭제";
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteRecord(item.id); };
+
+                cont.appendChild(card);
+                cont.appendChild(delBtn);
+                listDiv.appendChild(cont);
             }
+        }
+    }
+
+    // 슬라이드 삭제 핸들러들
+    function handleTouchStart(e) {
+        startX = e.touches[0].clientX;
+        const card = e.currentTarget;
+        card.style.transition = 'none';
+        
+        // 이전에 열려있던 게 있다면 닫기
+        if (activeContainer && activeContainer !== card.parentElement) {
+            activeContainer.querySelector('.history-card').style.transform = 'translateX(0px)';
+        }
+    }
+
+    function handleTouchMove(e) {
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+        const card = e.currentTarget;
+        
+        // 왼쪽으로 밀 때만 (최대 85px)
+        if (diff < 0 && diff > -120) {
+            card.style.transform = `translateX(${diff}px)`;
+        }
+    }
+
+    function handleTouchEnd(e) {
+        const card = e.currentTarget;
+        const cont = card.parentElement;
+        card.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        const diff = currentX - startX;
+        
+        if (diff < -50) { // 50px 이상 밀었으면 열기
+            card.style.transform = 'translateX(-85px)';
+            activeContainer = cont;
+        } else { // 아니면 닫기
+            card.style.transform = 'translateX(0px)';
+            activeContainer = null;
+        }
+        startX = 0;
+        currentX = 0;
+    }
+
+    function deleteRecord(id) {
+        if(confirm("이 주차 기록을 삭제할까요?")) {
+            parkingHistory = parkingHistory.filter(i => i.id !== id);
+            localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
+            renderHistory();
+            showToast("삭제되었습니다");
         }
     }
 
     function openLightbox(e, img) { e.stopPropagation(); document.getElementById('lightbox-img').src = img; document.getElementById('lightbox').style.display = 'flex'; }
     function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-    function addSwipeEvents(card, cont) {
-        card.addEventListener('touchstart', (e) => { closeAnySwipedItem(); touchStartX = e.touches[0].clientX; card.style.transition = 'none'; }, { passive: true });
-        card.addEventListener('touchmove', (e) => { let off = e.touches[0].clientX - touchStartX; if (off < 0 && off > -120) card.style.transform = `translateX(${off}px)`; }, { passive: true });
-        card.addEventListener('touchend', (e) => { card.style.transition = 'transform 0.3s ease-out'; if (e.changedTouches[0].clientX - touchStartX < -40) { cont.classList.add('swiped'); card.style.transform = 'translateX(-80px)'; currentSwipedItem = cont; } else { card.style.transform = 'translateX(0)'; } });
-    }
-    function closeAnySwipedItem() { if (currentSwipedItem) { currentSwipedItem.classList.remove('swiped'); currentSwipedItem.querySelector('.history-card').style.transform = 'translateX(0)'; currentSwipedItem = null; } }
-    function deleteRecord(e, id) { e.stopPropagation(); parkingHistory = parkingHistory.filter(i => i.id !== id); localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory)); renderHistory(); }
     function loadHistory() { const saved = localStorage.getItem('parkNoteHistory'); if (saved) { parkingHistory = JSON.parse(saved); renderHistory(); } }
     function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
