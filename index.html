@@ -11,27 +11,53 @@
         :root {
             --navy: #1a2744; --accent: #4f8ef7; --accent2: #f7c94f;
             --bg: #f4f6fb; --card-bg: #fff; --text: #1a2744; --muted: #8892aa;
-            --border: #e2e7f0; --radius: 16px;
+            --border: #e2e7f0; --radius: 16px; --danger: #e24b4a;
         }
         body { background: var(--bg); font-family: 'Noto Sans KR', sans-serif; color: var(--text); min-height: 100vh; }
         .phone-frame { max-width: 390px; margin: 0 auto; background: var(--bg); min-height: 100vh; padding-bottom: 40px; }
         .header { background: var(--navy); padding: 20px; border-radius: 0 0 28px 28px; color: white; }
         .section { padding: 20px 16px 0; }
-        .section-label { font-size: 12px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
-        /* 지도 영역 최적화 */
-        #map { height: 220px; border-radius: var(--radius); border: 1px solid var(--border); background: #eee; }
+        .section-label { font-size: 12px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+        
+        #map { height: 180px; border-radius: var(--radius); border: 1px solid var(--border); background: #eee; margin-bottom: 15px; }
+        
+        /* 사진 영역 및 버튼 */
         .photo-container { 
-            width: 100%; height: 180px; background: #e2e7f0; border-radius: var(--radius);
-            margin-bottom: 12px; display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 160px; background: #e2e7f0; border-radius: var(--radius);
+            margin-bottom: 8px; display: flex; align-items: center; justify-content: center;
             overflow: hidden; border: 2px dashed var(--muted);
         }
         #photo-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .camera-trigger-btn {
+            background: #fff; border: 1px solid var(--accent); color: var(--accent);
+            border-radius: 12px; padding: 10px; width: 100%; font-weight: 600;
+            margin-bottom: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        
         .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .input-box { flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; }
+        .input-box { flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; outline: none; }
+        
         .save-btn {
             background: var(--accent); color: #fff; border: none; border-radius: var(--radius);
-            padding: 16px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer;
+            padding: 16px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(79,142,247,0.2);
         }
+
+        /* 기록 리스트 */
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .history-item { 
+            background: var(--card-bg); border-radius: 12px; padding: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; gap: 12px; position: relative;
+        }
+        .history-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #eee; }
+        .history-info { flex: 1; }
+        .history-loc { font-weight: 700; font-size: 15px; }
+        .history-time { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+        .delete-btn { 
+            position: absolute; top: 8px; right: 8px; background: #fff1f1; color: var(--danger);
+            border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;
+        }
+
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: var(--navy); color: #fff; padding: 12px 24px; border-radius: 20px;
@@ -45,72 +71,67 @@
 <div class="phone-frame">
     <div class="header">
         <h2 style="font-family:'Space Grotesk'">Park<span>Note</span> Pro</h2>
-        <p id="last-saved" style="font-size:12px; opacity:0.8;">위치 탐색 중...</p>
+        <p id="gps-status" style="font-size:12px; opacity:0.8;">위치 탐색 중...</p>
     </div>
 
     <div class="section">
-        <div class="section-label">내 주변 지도</div>
         <div id="map"></div>
 
-        <div class="section-label" style="margin-top:20px;">현장 사진</div>
-        <div class="photo-container" onclick="document.getElementById('camera-input').click()">
+        <div class="section-label">현장 확인</div>
+        <div class="photo-container" id="photo-area">
             <img id="photo-preview" src="">
             <div id="photo-msg" style="text-align:center; color:var(--muted);">
-                <p>📷 터치하여 사진 촬영</p>
+                <p>사진이 없습니다</p>
             </div>
         </div>
+        <button class="camera-trigger-btn" onclick="document.getElementById('camera-input').click()">
+            📷 사진 촬영하기
+        </button>
         <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
 
         <div class="input-row">
-            <input class="input-box" id="loc-input" placeholder="구역 (예: B2-14)">
+            <input class="input-box" id="loc-input" placeholder="주차 구역 (예: B2-C3)">
             <input class="input-box" id="memo-input" placeholder="메모">
         </div>
 
         <button class="save-btn" onclick="saveData()">📍 현재 위치 저장</button>
+
+        <div class="section-label">최근 주차 기록 (최대 5개)</div>
+        <div class="history-list" id="history-list"></div>
     </div>
 </div>
 
-<div class="toast" id="toast">저장 완료!</div>
+<div class="toast" id="toast">정보가 기록되었습니다!</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, marker, currentImgBase64 = "";
+    let parkingHistory = [];
 
     window.onload = function() {
         initMap();
-        loadSavedData();
+        loadHistory();
     };
 
     function initMap() {
-        // 1. 초기 지도는 마지막 저장 위치 혹은 기본 위치로 즉시 띄움
         map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 2. 위치 인식 속도 최적화 (빠른 인식 우선)
         if (navigator.geolocation) {
-            // 지속적으로 위치 업데이트 (실시간성 강화)
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
-                
                 if (!marker) {
                     marker = L.marker([lat, lng]).addTo(map);
                     map.setView([lat, lng], 17);
                 } else {
                     marker.setLatLng([lat, lng]);
                 }
-                document.getElementById('last-saved').textContent = "위치 인식 완료 (정확도: " + Math.round(pos.coords.accuracy) + "m)";
-            }, err => {
-                console.log("위치 오류");
-            }, {
-                enableHighAccuracy: false, // 속도를 위해 처음엔 꺼둠
-                maximumAge: 3000,
-                timeout: 5000
-            });
+                document.getElementById('gps-status').textContent = "위치 연결됨 (정확도: " + Math.round(pos.coords.accuracy) + "m)";
+            }, null, { enableHighAccuracy: false, timeout: 5000 });
         }
     }
 
-    // 사진 압축 처리 (저장 속도 및 용량 최적화)
     document.getElementById('camera-input').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -120,22 +141,16 @@
                 img.src = event.target.result;
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; 
+                    const MAX_WIDTH = 400; 
                     let width = img.width;
                     let height = img.height;
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    currentImgBase64 = canvas.toDataURL('image/jpeg', 0.6); // 60% 압축
-                    
-                    const preview = document.getElementById('photo-preview');
-                    preview.src = currentImgBase64;
-                    preview.style.display = 'block';
+                    currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                    document.getElementById('photo-preview').src = currentImgBase64;
+                    document.getElementById('photo-preview').style.display = 'block';
                     document.getElementById('photo-msg').style.display = 'none';
                 };
             };
@@ -144,38 +159,71 @@
     });
 
     function saveData() {
-        if (!marker) { alert("위치를 잡는 중입니다. 잠시만 기다려주세요."); return; }
+        if (!marker) { alert("위치를 탐색 중입니다."); return; }
         
-        const data = {
-            location: document.getElementById('loc-input').value,
-            memo: document.getElementById('memo-input').value,
+        const newRecord = {
+            id: Date.now(),
+            location: document.getElementById('loc-input').value || "미지정",
+            memo: document.getElementById('memo-input').value || "",
             time: new Date().toLocaleString(),
             photo: currentImgBase64,
             lat: marker.getLatLng().lat,
             lng: marker.getLatLng().lng
         };
 
-        try {
-            localStorage.setItem('parkNoteData', JSON.stringify(data));
-            showToast();
-        } catch (e) {
-            alert("사진 용량이 너무 큽니다. 다른 사진을 찍어주세요.");
+        parkingHistory.unshift(newRecord);
+        if (parkingHistory.length > 5) parkingHistory.pop();
+
+        localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
+        renderHistory();
+        showToast();
+        
+        // 초기화
+        document.getElementById('loc-input').value = "";
+        document.getElementById('memo-input').value = "";
+        document.getElementById('photo-preview').style.display = 'none';
+        document.getElementById('photo-msg').style.display = 'block';
+        currentImgBase64 = "";
+    }
+
+    function renderHistory() {
+        const listDiv = document.getElementById('history-list');
+        listDiv.innerHTML = "";
+        if (parkingHistory.length === 0) {
+            listDiv.innerHTML = "<p style='text-align:center; color:#8892aa; font-size:13px; padding:20px;'>저장된 기록이 없습니다.</p>";
+            return;
+        }
+        parkingHistory.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'history-item';
+            card.onclick = () => { map.setView([item.lat, item.lng], 18); };
+            card.innerHTML = `
+                <img src="${item.photo || 'https://via.placeholder.com/60'}" class="history-img">
+                <div class="history-info">
+                    <div class="history-time">${item.time}</div>
+                    <div class="history-loc">${item.location}</div>
+                    <div style="font-size:12px; color:#4f8ef7;">${item.memo}</div>
+                </div>
+                <button class="delete-btn" onclick="deleteRecord(event, ${item.id})">삭제</button>
+            `;
+            listDiv.appendChild(card);
+        });
+    }
+
+    function deleteRecord(event, id) {
+        event.stopPropagation();
+        if (confirm("기록을 삭제하시겠습니까?")) {
+            parkingHistory = parkingHistory.filter(item => item.id !== id);
+            localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
+            renderHistory();
         }
     }
 
-    function loadSavedData() {
-        const saved = localStorage.getItem('parkNoteData');
+    function loadHistory() {
+        const saved = localStorage.getItem('parkNoteHistory');
         if (saved) {
-            const data = JSON.parse(saved);
-            document.getElementById('loc-input').value = data.location || "";
-            document.getElementById('memo-input').value = data.memo || "";
-            if (data.photo) {
-                currentImgBase64 = data.photo;
-                const preview = document.getElementById('photo-preview');
-                preview.src = data.photo;
-                preview.style.display = 'block';
-                document.getElementById('photo-msg').style.display = 'none';
-            }
+            parkingHistory = JSON.parse(saved);
+            renderHistory();
         }
     }
 
