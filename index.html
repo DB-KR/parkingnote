@@ -128,7 +128,7 @@
 
     function initMap() {
         try {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.56, 126.97], 15);
+            map = L.map('map', { zoomControl: false }).setView([37.56, 126.97], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
             if (navigator.geolocation) {
