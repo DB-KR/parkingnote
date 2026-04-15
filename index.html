@@ -41,23 +41,22 @@
         .hero-img { width: 100%; height: 200px; border-radius: 16px; object-fit: cover; background: var(--accent); cursor: pointer; }
         .view-map-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); color: var(--primary); border: none; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
 
+        /* 지도 영역 */
         #map { height: 180px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); background: var(--accent); z-index: 1; }
 
-        /* 입력 섹션 */
+        /* 태그 및 입력 */
         .quick-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); cursor: pointer; }
         
         .input-group { background: var(--card); border-radius: 22px; padding: 18px; border: 1px solid var(--border); }
         .input-field { width: 100%; border: none; background: transparent; padding: 12px 0; font-size: 16px; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 12px; outline: none; }
 
-        /* 모달 스타일 (공통) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; }
+        /* 모달 스타일 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; }
         .modal-content { background: var(--card); width: 90%; max-width: 400px; padding: 25px; border-radius: 24px; position: relative; }
-        
-        /* 이미지 확대 모달 전용 */
         .img-modal img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
 
-        /* 히스토리 아이템 스타일 */
+        /* 히스토리 아이템 */
         .history-item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .history-item:last-child { border-bottom: none; }
         .history-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: var(--accent); }
@@ -78,9 +77,7 @@
 <div class="drawer" id="drawer">
     <h2 style="margin-bottom: 30px; font-family: 'Space Grotesk'; color: var(--primary);">Menu</h2>
     <div class="menu-item" onclick="showHistoryList()">📜 주차 히스토리</div>
-    <div class="menu-item" onclick="exportData()">📤 데이터 백업</div>
-    <div class="menu-item" onclick="importData()">📥 데이터 불러오기</div>
-    <div class="menu-item" onclick="clearData()" style="color: var(--danger);">🗑️ 전체 기록 삭제</div>
+    <div class="menu-item" onclick="clearData()" style="color: var(--danger); margin-top: 20px;">🗑️ 전체 기록 삭제</div>
 </div>
 
 <div class="modal img-modal" id="imageModal" onclick="closeImageModal()">
@@ -136,7 +133,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         initMap();
         loadHistory();
-        setInterval(render, 60000); // 1분마다 리렌더링하여 경과 시간 업데이트
+        setInterval(render, 60000);
     });
 
     function toggleMenu() {
@@ -146,8 +143,15 @@
 
     function initMap() {
         try {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.56, 126.97], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            // [변경] attributionControl을 true로 설정하여 로고를 띄웁니다.
+            map = L.map('map', { 
+                zoomControl: false, 
+                attributionControl: true 
+            }).setView([37.56, 126.97], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
             
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(pos => {
@@ -156,12 +160,11 @@
                         marker = L.marker([lat, lng]).addTo(map);
                         map.setView([lat, lng], 17);
                     } else { marker.setLatLng([lat, lng]); }
-                    const status = document.getElementById('gps-status');
-                    status.textContent = "● GPS 수신 중";
-                    status.style.color = "#22c55e";
+                    document.getElementById('gps-status').textContent = "● GPS 수신 중";
+                    document.getElementById('gps-status').style.color = "#22c55e";
                 }, null, { enableHighAccuracy: true });
             }
-        } catch (e) { console.error("Map error", e); }
+        } catch (e) { console.error(e); }
     }
 
     function triggerCamera() { document.getElementById('camera-input').click(); }
@@ -169,13 +172,12 @@
     document.getElementById('camera-input').onchange = function(e) {
         const file = e.target.files[0];
         if (!file) return;
-        showToast("📸 이미지 최적화 중...");
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX = 800; // 아이폰 메모리 정책을 고려한 해상도
+                const MAX = 800;
                 let w = img.width, h = img.height;
                 if (w > MAX) { h *= MAX / w; w = MAX; }
                 canvas.width = w; canvas.height = h;
@@ -189,7 +191,7 @@
     };
 
     function saveData() {
-        if (!marker) return showToast("GPS 수신 대기 중...");
+        if (!marker) return showToast("GPS 신호를 기다려주세요.");
         const now = new Date();
         const record = {
             id: Date.now(),
@@ -205,7 +207,7 @@
         if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkHistory', JSON.stringify(parkingHistory));
         render();
-        showToast("✅ 주차 위치가 저장되었습니다.");
+        showToast("✅ 주차 정보가 저장되었습니다.");
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
         currentImgBase64 = "";
@@ -242,10 +244,9 @@
         if (historyMarker) map.removeLayer(historyMarker);
         historyMarker = L.circleMarker([lat, lng], { color: '#ff4d4d', radius: 10, fillOpacity: 0.6 }).addTo(map);
         map.setView([lat, lng], 18);
-        showToast("📍 주차 위치로 지도를 이동했습니다.");
+        showToast("📍 주차 위치로 이동했습니다.");
     }
 
-    // 모달 제어 함수
     function openImageModal(src) {
         document.getElementById('modalImg').src = src;
         document.getElementById('imageModal').style.display = 'flex';
@@ -277,7 +278,6 @@
         closeHistoryModal();
     }
 
-    // 데이터 관리
     function quickFillFloor(val) {
         const input = document.getElementById('loc-input');
         input.value = val + " " + input.value.replace(/지하 \d층|지상 \d층/g, "").trim();
@@ -285,26 +285,6 @@
     function quickFill(val) {
         const input = document.getElementById('loc-input');
         if (!input.value.includes(val)) input.value = (input.value + " " + val).trim();
-    }
-    function exportData() {
-        const data = localStorage.getItem('parkHistory');
-        if(!data) return;
-        const blob = new Blob([data], {type: "application/json"});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `parknote_backup.json`;
-        a.click();
-    }
-    function importData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.onchange = e => {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = ev => { localStorage.setItem('parkHistory', ev.target.result); location.reload(); };
-            r.readAsText(f);
-        };
-        input.click();
     }
     function clearData() { if(confirm("모든 기록을 삭제할까요?")) { localStorage.clear(); location.reload(); } }
     function showToast(m) {
