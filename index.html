@@ -19,7 +19,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow: hidden; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow: hidden; height: 100vh; }
         
         /* 사이드 메뉴 */
         .drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.3s; box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 50px 20px; }
@@ -33,32 +33,42 @@
         .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text); padding: 5px; }
         .logo { font-family: 'Space Grotesk'; font-size: 22px; color: var(--primary); flex: 1; }
 
-        .app-container { height: 100vh; overflow-y: auto; padding: 0 16px 220px; -webkit-overflow-scrolling: touch; }
+        .app-container { height: 100%; overflow-y: auto; padding: 0 16px 250px; -webkit-overflow-scrolling: touch; }
 
-        /* 카드 UI 개선 */
-        .hero-card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
-        .img-container { position: relative; width: 100%; margin-bottom: 12px; cursor: pointer; }
-        .hero-img { width: 100%; height: 200px; border-radius: 16px; object-fit: cover; background: var(--accent); }
-        .view-map-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); color: var(--primary); border: none; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 4px; }
+        /* 카드 UI */
+        .hero-card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: relative; }
+        .img-container { position: relative; width: 100%; margin-bottom: 12px; }
+        .hero-img { width: 100%; height: 200px; border-radius: 16px; object-fit: cover; background: var(--accent); cursor: pointer; }
+        .view-map-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); color: var(--primary); border: none; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
 
         #map { height: 180px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); background: var(--accent); z-index: 1; }
 
-        /* 태그 및 입력 */
+        /* 입력 섹션 */
         .quick-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); cursor: pointer; }
         
         .input-group { background: var(--card); border-radius: 22px; padding: 18px; border: 1px solid var(--border); }
         .input-field { width: 100%; border: none; background: transparent; padding: 12px 0; font-size: 16px; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 12px; outline: none; }
 
-        /* 이미지 확대 모달 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; justify-content: center; align-items: center; }
-        .modal img { max-width: 95%; max-height: 90%; border-radius: 8px; }
-        .modal-close { position: absolute; top: 40px; right: 20px; color: white; font-size: 30px; font-weight: bold; cursor: pointer; }
+        /* 모달 스타일 (공통) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--card); width: 90%; max-width: 400px; padding: 25px; border-radius: 24px; position: relative; }
+        
+        /* 이미지 확대 모달 전용 */
+        .img-modal img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
 
+        /* 히스토리 아이템 스타일 */
+        .history-item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .history-item:last-child { border-bottom: none; }
+        .history-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: var(--accent); }
+        .history-info h4 { font-size: 14px; margin-bottom: 2px; }
+        .history-info p { font-size: 11px; color: var(--muted); }
+
+        /* 하단 고정 버튼 */
         .bottom-action { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 16px calc(20px + var(--safe-bottom)); background: linear-gradient(to top, var(--bg) 80%, transparent); z-index: 1000; }
         .complete-btn { background: var(--primary); color: white; border: none; border-radius: 20px; width: 100%; padding: 18px; font-size: 18px; font-weight: 800; box-shadow: 0 10px 20px rgba(79, 142, 247, 0.3); cursor: pointer; }
 
-        .toast { position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 3000; pointer-events: none; }
+        .toast { position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 3000; pointer-events: none; font-size: 14px; }
         .toast.show { opacity: 1; }
     </style>
 </head>
@@ -67,14 +77,22 @@
 <div class="drawer-overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="drawer" id="drawer">
     <h2 style="margin-bottom: 30px; font-family: 'Space Grotesk'; color: var(--primary);">Menu</h2>
+    <div class="menu-item" onclick="showHistoryList()">📜 주차 히스토리</div>
     <div class="menu-item" onclick="exportData()">📤 데이터 백업</div>
     <div class="menu-item" onclick="importData()">📥 데이터 불러오기</div>
     <div class="menu-item" onclick="clearData()" style="color: var(--danger);">🗑️ 전체 기록 삭제</div>
 </div>
 
-<div class="modal" id="imageModal" onclick="closeModal()">
-    <span class="modal-close">&times;</span>
+<div class="modal img-modal" id="imageModal" onclick="closeImageModal()">
     <img id="modalImg">
+</div>
+
+<div class="modal" id="historyModal" onclick="closeHistoryModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 style="margin-bottom: 15px;">과거 주차 기록</h3>
+        <div id="historyListArea" style="max-height: 400px; overflow-y: auto;"></div>
+        <button onclick="closeHistoryModal()" style="margin-top:20px; width:100%; padding:12px; border:none; border-radius:12px; background:var(--primary); color:white; font-weight:700;">닫기</button>
+    </div>
 </div>
 
 <header class="header">
@@ -118,7 +136,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         initMap();
         loadHistory();
-        setInterval(render, 60000); // 1분마다 시간 업데이트를 위해 리렌더링
+        setInterval(render, 60000); // 1분마다 리렌더링하여 경과 시간 업데이트
     });
 
     function toggleMenu() {
@@ -128,7 +146,7 @@
 
     function initMap() {
         try {
-            map = L.map('map', { zoomControl: false }).setView([37.56, 126.97], 15);
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.56, 126.97], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
             if (navigator.geolocation) {
@@ -138,24 +156,12 @@
                         marker = L.marker([lat, lng]).addTo(map);
                         map.setView([lat, lng], 17);
                     } else { marker.setLatLng([lat, lng]); }
-                    document.getElementById('gps-status').textContent = "● GPS 수신 중";
-                    document.getElementById('gps-status').style.color = "#22c55e";
+                    const status = document.getElementById('gps-status');
+                    status.textContent = "● GPS 수신 중";
+                    status.style.color = "#22c55e";
                 }, null, { enableHighAccuracy: true });
             }
-        } catch (e) {}
-    }
-
-    function quickFillFloor(val) {
-        const input = document.getElementById('loc-input');
-        const floors = ['지하 1층', '지하 2층', '지하 3층', '지상 1층'];
-        let txt = input.value;
-        floors.forEach(f => { txt = txt.replace(f, "").trim(); });
-        input.value = (val + " " + txt).trim();
-    }
-
-    function quickFill(val) {
-        const input = document.getElementById('loc-input');
-        if (!input.value.includes(val)) input.value = (input.value + " " + val).trim();
+        } catch (e) { console.error("Map error", e); }
     }
 
     function triggerCamera() { document.getElementById('camera-input').click(); }
@@ -163,12 +169,13 @@
     document.getElementById('camera-input').onchange = function(e) {
         const file = e.target.files[0];
         if (!file) return;
+        showToast("📸 이미지 최적화 중...");
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX = 800;
+                const MAX = 800; // 아이폰 메모리 정책을 고려한 해상도
                 let w = img.width, h = img.height;
                 if (w > MAX) { h *= MAX / w; w = MAX; }
                 canvas.width = w; canvas.height = h;
@@ -182,7 +189,7 @@
     };
 
     function saveData() {
-        if (!marker) return showToast("GPS 신호를 기다려주세요.");
+        if (!marker) return showToast("GPS 수신 대기 중...");
         const now = new Date();
         const record = {
             id: Date.now(),
@@ -195,10 +202,10 @@
             lng: marker.getLatLng().lng
         };
         parkingHistory.unshift(record);
-        if (parkingHistory.length > 5) parkingHistory.pop();
+        if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkHistory', JSON.stringify(parkingHistory));
         render();
-        showToast("✅ 저장되었습니다.");
+        showToast("✅ 주차 위치가 저장되었습니다.");
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
         currentImgBase64 = "";
@@ -222,10 +229,10 @@
             <div class="hero-card">
                 <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">⏱ ${elapsed} (${item.formattedTime})</div>
                 <div class="img-container">
-                    ${item.photo ? `<img src="${item.photo}" class="hero-img" onclick="openModal('${item.photo}')">` : '<div class="hero-img" style="display:flex; align-items:center; justify-content:center; color:var(--muted)">사진 없음</div>'}
+                    ${item.photo ? `<img src="${item.photo}" class="hero-img" onclick="openImageModal('${item.photo}')">` : '<div class="hero-img" style="display:flex; align-items:center; justify-content:center; color:var(--muted)">사진 없음</div>'}
                     <button class="view-map-btn" onclick="focusParkingLocation(${item.lat}, ${item.lng})">📍 위치 확인</button>
                 </div>
-                <h2 style="font-size: 22px; font-weight: 800;">${item.location}</h2>
+                <h2 style="font-size: 22px; font-weight: 800; margin-bottom:4px;">${item.location}</h2>
                 <p style="color:var(--muted); font-size: 14px;">${item.memo}</p>
             </div>
         `;
@@ -233,20 +240,52 @@
 
     function focusParkingLocation(lat, lng) {
         if (historyMarker) map.removeLayer(historyMarker);
-        historyMarker = L.circleMarker([lat, lng], { color: '#ff4d4d', radius: 10 }).addTo(map);
+        historyMarker = L.circleMarker([lat, lng], { color: '#ff4d4d', radius: 10, fillOpacity: 0.6 }).addTo(map);
         map.setView([lat, lng], 18);
-        showToast("📍 주차 위치로 이동했습니다.");
+        showToast("📍 주차 위치로 지도를 이동했습니다.");
     }
 
-    function openModal(src) {
+    // 모달 제어 함수
+    function openImageModal(src) {
         document.getElementById('modalImg').src = src;
         document.getElementById('imageModal').style.display = 'flex';
     }
+    function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
-    function closeModal() {
-        document.getElementById('imageModal').style.display = 'none';
+    function showHistoryList() {
+        const listArea = document.getElementById('historyListArea');
+        if (parkingHistory.length === 0) {
+            listArea.innerHTML = "<p style='text-align:center; padding:20px; color:var(--muted);'>기록이 없습니다.</p>";
+        } else {
+            listArea.innerHTML = parkingHistory.map((item, idx) => `
+                <div class="history-item" onclick="focusHistoryItem(${idx})">
+                    <img class="history-thumb" src="${item.photo || ''}" onerror="this.style.display='none'">
+                    <div class="history-info">
+                        <h4>${item.location}</h4>
+                        <p>${item.formattedTime}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        document.getElementById('historyModal').style.display = 'flex';
+        toggleMenu();
+    }
+    function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+    function focusHistoryItem(idx) {
+        const item = parkingHistory[idx];
+        focusParkingLocation(item.lat, item.lng);
+        closeHistoryModal();
     }
 
+    // 데이터 관리
+    function quickFillFloor(val) {
+        const input = document.getElementById('loc-input');
+        input.value = val + " " + input.value.replace(/지하 \d층|지상 \d층/g, "").trim();
+    }
+    function quickFill(val) {
+        const input = document.getElementById('loc-input');
+        if (!input.value.includes(val)) input.value = (input.value + " " + val).trim();
+    }
     function exportData() {
         const data = localStorage.getItem('parkHistory');
         if(!data) return;
@@ -256,7 +295,6 @@
         a.download = `parknote_backup.json`;
         a.click();
     }
-
     function importData() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -268,15 +306,12 @@
         };
         input.click();
     }
-
-    function clearData() { if(confirm("삭제하시겠습니까?")) { localStorage.clear(); location.reload(); } }
-
+    function clearData() { if(confirm("모든 기록을 삭제할까요?")) { localStorage.clear(); location.reload(); } }
     function showToast(m) {
         const t = document.getElementById('toast');
         t.textContent = m; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
     }
-
     function loadHistory() {
         const saved = localStorage.getItem('parkHistory');
         if (saved) { parkingHistory = JSON.parse(saved); render(); }
