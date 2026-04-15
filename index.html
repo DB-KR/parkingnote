@@ -12,7 +12,7 @@
         :root {
             --primary: #4f8ef7; --bg: #f8f9fd; --card: #ffffff; --text: #1e293b; 
             --muted: #64748b; --border: #e2e8f0; --accent: #eef4ff; --danger: #ff4d4d;
-            --safe-bottom: env(safe-area-inset-bottom); /* 아이폰 하단 바 영역 대응 */
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
         @media (prefers-color-scheme: dark) {
             :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155; --accent: #2d3a4f; }
@@ -21,7 +21,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow: hidden; }
         
-        /* 사이드 메뉴 */
         .drawer {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
             background: var(--card); z-index: 2000; transition: 0.3s;
@@ -35,30 +34,25 @@
         .drawer-overlay.active { display: block; }
         .menu-item { padding: 15px; border-radius: 12px; margin-bottom: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; }
 
-        /* 헤더 */
-        .header { display: flex; align-items: center; padding: 20px 20px 10px; gap: 15px; padding-top: calc(10px + env(safe-area-inset-top)); }
-        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text); }
+        .header { display: flex; align-items: center; padding: 20px 20px 10px; gap: 15px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text); padding: 5px; }
         .logo { font-family: 'Space Grotesk'; font-size: 22px; color: var(--primary); flex: 1; }
 
-        .app-container { height: 100vh; overflow-y: auto; padding: 0 16px 180px; }
-
-        /* 카드 UI */
+        .app-container { height: 100vh; overflow-y: auto; padding: 0 16px 200px; -webkit-overflow-scrolling: touch; }
         .hero-card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         .hero-img { width: 100%; height: 200px; border-radius: 16px; object-fit: cover; margin-bottom: 12px; background: var(--accent); }
-        #map { height: 180px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); z-index: 1; }
+        #map { height: 180px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); background: var(--accent); position: relative; z-index: 1; }
 
-        /* 입력 섹션 */
-        .quick-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
-        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+        .quick-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); cursor: pointer; }
         
         .input-group { background: var(--card); border-radius: 22px; padding: 18px; border: 1px solid var(--border); }
-        .input-field { width: 100%; border: none; background: transparent; padding: 12px 0; font-size: 16px; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 12px; outline: none; border-radius: 0; }
+        .input-field { width: 100%; border: none; background: transparent; padding: 12px 0; font-size: 16px; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 12px; outline: none; }
 
-        /* 하단 고정 버튼 (아이폰 하단바 대응) */
         .bottom-action {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            padding: 15px 16px calc(15px + var(--safe-bottom));
-            background: linear-gradient(to top, var(--bg) 85%, transparent);
+            padding: 15px 16px calc(20px + var(--safe-bottom));
+            background: linear-gradient(to top, var(--bg) 80%, transparent);
             z-index: 1000;
         }
         .complete-btn {
@@ -67,7 +61,7 @@
             box-shadow: 0 10px 20px rgba(79, 142, 247, 0.3); cursor: pointer;
         }
 
-        .toast { position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 3000; pointer-events: none; font-size: 14px; }
+        .toast { position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 3000; pointer-events: none; }
         .toast.show { opacity: 1; }
     </style>
 </head>
@@ -76,7 +70,7 @@
 <div class="drawer-overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="drawer" id="drawer">
     <h2 style="margin-bottom: 30px; font-family: 'Space Grotesk'; color: var(--primary);">Menu</h2>
-    <div class="menu-item" onclick="exportData()">📤 데이터 백업 (JSON)</div>
+    <div class="menu-item" onclick="exportData()">📤 데이터 백업</div>
     <div class="menu-item" onclick="importData()">📥 데이터 불러오기</div>
     <div class="menu-item" onclick="clearData()" style="color: var(--danger);">🗑️ 전체 기록 삭제</div>
 </div>
@@ -84,28 +78,24 @@
 <header class="header">
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
     <div class="logo">ParkNote</div>
-    <div id="gps-status" style="font-size: 10px; font-weight: 700;">GPS 확인 중...</div>
+    <div id="gps-status" style="font-size: 10px; font-weight: 700; color: var(--muted);">GPS 확인 중</div>
 </header>
 
 <div class="app-container">
     <div id="hero-area">
-        <div class="hero-card" style="text-align: center; color: var(--muted); padding: 50px 20px;">주차 기록이 없습니다.</div>
+        <div class="hero-card" style="text-align: center; color: var(--muted); padding: 40px;">주차 기록이 없습니다.</div>
     </div>
-
     <div id="map"></div>
-
     <section>
         <div class="quick-tags">
             <button class="tag-btn" onclick="quickFillFloor('지하 1층')">B1</button>
             <button class="tag-btn" onclick="quickFillFloor('지하 2층')">B2</button>
             <button class="tag-btn" onclick="quickFillFloor('지하 3층')">B3</button>
-            <button class="tag-btn" onclick="quickFillFloor('지상 1층')">1F</button>
             <button class="tag-btn" onclick="quickFill('엘리베이터 앞')">엘베앞</button>
         </div>
-
         <div class="input-group">
-            <input class="input-field" id="loc-input" placeholder="주차 위치 입력" autocomplete="off">
-            <input class="input-field" id="memo-input" placeholder="메모 (기둥 번호 등)" autocomplete="off">
+            <input class="input-field" id="loc-input" placeholder="주차 위치 입력">
+            <input class="input-field" id="memo-input" placeholder="메모 추가">
             <button style="background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:12px; width:100%; font-weight:700;" onclick="triggerCamera()">📷 사진 촬영</button>
         </div>
         <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
@@ -115,64 +105,61 @@
 <div class="bottom-action">
     <button class="complete-btn" onclick="saveData()">주차 완료</button>
 </div>
-
 <div id="toast" class="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // 전역 변수 초기화
     let map, marker, currentImgBase64 = "";
     let parkingHistory = [];
 
-    if ('serviceWorker' in navigator) { 
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW fail', err));
-        });
-    }
-
-    window.onload = function() {
+    // 실행 순서 보장
+    window.addEventListener('DOMContentLoaded', () => {
         initMap();
         loadHistory();
-        if (Notification.permission !== "granted") {
-            Notification.requestPermission();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
         }
-    };
+    });
 
     function toggleMenu() {
-        document.getElementById('drawer').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
+        const d = document.getElementById('drawer');
+        const o = document.getElementById('overlay');
+        d.classList.toggle('active');
+        o.classList.toggle('active');
     }
 
     function initMap() {
-        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.56, 126.97], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        
-        const geoOptions = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(pos => {
-                const { latitude: lat, longitude: lng } = pos.coords;
-                if (!marker) { 
-                    marker = L.marker([lat, lng]).addTo(map); 
-                    map.setView([lat, lng], 17); 
-                } else { 
-                    marker.setLatLng([lat, lng]); 
-                }
-                document.getElementById('gps-status').textContent = "● GPS 수신 중";
-                document.getElementById('gps-status').style.color = "#22c55e";
-            }, err => {
-                console.error(err);
-                document.getElementById('gps-status').textContent = "● GPS 오류";
-                document.getElementById('gps-status').style.color = var(--danger);
-            }, geoOptions);
+        try {
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.56, 126.97], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(pos => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (!marker) {
+                        marker = L.marker([lat, lng]).addTo(map);
+                        map.setView([lat, lng], 17);
+                    } else {
+                        marker.setLatLng([lat, lng]);
+                    }
+                    const status = document.getElementById('gps-status');
+                    status.textContent = "● GPS 수신 중";
+                    status.style.color = "#22c55e";
+                }, () => {}, { enableHighAccuracy: true });
+            }
+        } catch (e) {
+            console.error("Map Init Error", e);
         }
     }
 
     function quickFillFloor(val) {
         const input = document.getElementById('loc-input');
         const floors = ['지하 1층', '지하 2층', '지하 3층', '지상 1층'];
-        let currentVal = input.value;
-        floors.forEach(f => { currentVal = currentVal.replace(f, "").trim(); });
-        input.value = (val + " " + currentVal).trim();
+        let txt = input.value;
+        floors.forEach(f => { txt = txt.replace(f, "").trim(); });
+        input.value = (val + " " + txt).trim();
     }
 
     function quickFill(val) {
@@ -184,64 +171,46 @@
         document.getElementById('camera-input').click();
     }
 
-    // [아이폰 오류 개선] 이미지 처리 로직 고도화
     document.getElementById('camera-input').onchange = function(e) {
         const file = e.target.files[0];
-        if (file) {
-            showToast("📸 이미지를 처리 중입니다...");
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    // 아이폰 메모리 최적화를 위해 크기 하향 조정
-                    const MAX_WIDTH = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // 아이폰 사파리 저장 오류 방지를 위해 품질을 0.5로 설정 (용량 감소)
-                    currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
-                    showToast("✅ 사진이 준비되었습니다.");
-                };
-                img.src = event.target.result;
+        if (!file) return;
+        showToast("📸 이미지 처리 중...");
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX = 800;
+                let w = img.width, h = img.height;
+                if (w > MAX) { h *= MAX / w; w = MAX; }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                showToast("✅ 사진 준비 완료");
             };
-            reader.readAsDataURL(file);
-        }
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
     };
 
     function saveData() {
-        if (!marker) {
-            showToast("GPS 신호가 필요합니다. 야외에서 시도해주세요.");
-            return;
-        }
+        if (!marker) return showToast("GPS 수신 대기 중...");
         const now = new Date();
         const record = {
-            id: Date.now(), 
-            timestamp: now.getTime(),
+            id: Date.now(),
             formattedTime: `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}. ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`,
-            location: document.getElementById('loc-input').value || "지하 주차장",
+            location: document.getElementById('loc-input').value || "주차장",
             memo: document.getElementById('memo-input').value || "",
-            photo: currentImgBase64, 
-            lat: marker.getLatLng().lat, 
+            photo: currentImgBase64,
+            lat: marker.getLatLng().lat,
             lng: marker.getLatLng().lng
         };
         parkingHistory.unshift(record);
         if (parkingHistory.length > 5) parkingHistory.pop();
         localStorage.setItem('parkHistory', JSON.stringify(parkingHistory));
-        
         render();
-        sendNotification(record);
-        showToast("✅ 주차 위치가 저장되었습니다.");
+        showToast("✅ 저장되었습니다.");
         
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
@@ -252,14 +221,13 @@
     function render() {
         const area = document.getElementById('hero-area');
         if (parkingHistory.length === 0) return;
-        const latest = parkingHistory[0];
-        
+        const item = parkingHistory[0];
         area.innerHTML = `
             <div class="hero-card">
-                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">🗓 ${latest.formattedTime}</div>
-                ${latest.photo ? `<img src="${latest.photo}" class="hero-img">` : ''}
-                <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 4px;">${latest.location}</h2>
-                <p style="color:var(--muted); font-size: 14px;">${latest.memo}</p>
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">🗓 ${item.formattedTime}</div>
+                ${item.photo ? `<img src="${item.photo}" class="hero-img">` : ''}
+                <h2 style="font-size: 22px; font-weight: 800;">${item.location}</h2>
+                <p style="color:var(--muted); font-size: 14px;">${item.memo}</p>
             </div>
         `;
     }
@@ -279,41 +247,27 @@
         const input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = event => {
-                localStorage.setItem('parkHistory', event.target.result);
+            const f = e.target.files[0];
+            const r = new FileReader();
+            r.onload = ev => {
+                localStorage.setItem('parkHistory', ev.target.result);
                 location.reload();
             };
-            reader.readAsText(file);
+            r.readAsText(f);
         };
         input.click();
-        toggleMenu();
     }
 
     function clearData() {
-        if(confirm("기록을 삭제할까요?")) {
+        if(confirm("삭제하시겠습니까?")) {
             localStorage.clear();
             location.reload();
         }
     }
 
-    function sendNotification(record) {
-        if (Notification.permission === "granted" && 'serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification(`🅿️ 주차 완료: ${record.location}`, {
-                    body: `${record.formattedTime} 기록됨`,
-                    image: record.photo,
-                    tag: 'parking-info'
-                });
-            });
-        }
-    }
-
     function showToast(m) {
-        const t = document.getElementById('toast'); 
-        t.textContent = m;
-        t.classList.add('show'); 
+        const t = document.getElementById('toast');
+        t.textContent = m; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
     }
 
