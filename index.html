@@ -20,7 +20,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; color: var(--text); overflow: hidden; }
         
-        /* [개선] 사이드 메뉴(Drawer) 스타일 */
+        /* 사이드 메뉴 스타일 */
         .drawer {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
             background: var(--card); z-index: 2000; transition: 0.3s;
@@ -38,12 +38,12 @@
         }
         .menu-item:active { background: var(--accent); }
 
-        /* 헤더 개선 */
+        /* 헤더 */
         .header { display: flex; align-items: center; padding: 20px; gap: 15px; }
         .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--text); }
         .logo { font-family: 'Space Grotesk'; font-size: 22px; color: var(--primary); flex: 1; }
 
-        .app-container { height: 100vh; overflow-y: auto; padding: 0 16px 120px; }
+        .app-container { height: 100vh; overflow-y: auto; padding: 0 16px 140px; }
 
         /* 메인 카드 및 지도 */
         .hero-card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
@@ -52,12 +52,13 @@
 
         /* 입력 UI */
         .quick-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--muted); }
+        .tag-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); transition: 0.2s; }
+        .tag-btn:active { background: var(--primary); color: white; }
         
         .input-group { background: var(--card); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
         .input-field { width: 100%; border: none; background: transparent; padding: 12px 0; font-size: 16px; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 10px; outline: none; }
 
-        /* [개선] 주차 완료 버튼 (Bottom Bar) */
+        /* 하단 고정 버튼 */
         .bottom-action {
             position: fixed; bottom: 0; left: 0; width: 100%;
             padding: 20px 16px 35px; background: linear-gradient(to top, var(--bg) 80%, transparent);
@@ -70,7 +71,7 @@
         }
         .complete-btn:active { transform: scale(0.98); background: #3a7bd5; }
 
-        .toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; pointer-events: none; }
+        .toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 3000; }
         .toast.show { opacity: 1; }
     </style>
 </head>
@@ -82,7 +83,6 @@
     <div class="menu-item" onclick="exportData()">📤 데이터 백업 (JSON)</div>
     <div class="menu-item" onclick="importData()">📥 데이터 불러오기</div>
     <div class="menu-item" onclick="clearData()" style="color: var(--danger);">🗑️ 전체 기록 삭제</div>
-    <div style="position: absolute; bottom: 40px; font-size: 12px; color: var(--muted);">ParkNote Pro v1.5</div>
 </div>
 
 <header class="header">
@@ -93,23 +93,24 @@
 
 <div class="app-container">
     <div id="hero-area">
-        <div class="hero-card" style="text-align: center; color: var(--muted);">최근 주차 기록이 없습니다.</div>
+        <div class="hero-card" style="text-align: center; color: var(--muted); padding: 40px;">최근 주차 기록이 없습니다.</div>
     </div>
 
     <div id="map"></div>
 
     <section>
         <div class="quick-tags">
-            <button class="tag-btn" onclick="quickFill('지하 1층')">B1</button>
-            <button class="tag-btn" onclick="quickFill('지하 2층')">B2</button>
-            <button class="tag-btn" onclick="quickFill('지상 1층')">1F</button>
-            <button class="tag-btn" onclick="quickFill('기둥 옆')">기둥옆</button>
+            <button class="tag-btn" onclick="quickFillFloor('지하 1층')">B1</button>
+            <button class="tag-btn" onclick="quickFillFloor('지하 2층')">B2</button>
+            <button class="tag-btn" onclick="quickFillFloor('지하 3층')">B3</button>
+            <button class="tag-btn" onclick="quickFillFloor('지상 1층')">1F</button>
+            <button class="tag-btn" onclick="quickFill('엘리베이터 앞')">엘베앞</button>
         </div>
 
         <div class="input-group">
-            <input class="input-field" id="loc-input" placeholder="어디에 주차하셨나요?">
-            <input class="input-field" id="memo-input" placeholder="기억할 메모 (기둥 번호 등)">
-            <button style="background:var(--accent); color:var(--primary); border:none; padding:12px; border-radius:12px; width:100%; font-weight:700; margin-top:5px;" onclick="document.getElementById('camera-input').click()">📷 사진으로 기록하기</button>
+            <input class="input-field" id="loc-input" placeholder="주차 위치 (예: B2 G-10)">
+            <input class="input-field" id="memo-input" placeholder="추가 메모 (선택)">
+            <button style="background:var(--accent); color:var(--primary); border:none; padding:12px; border-radius:12px; width:100%; font-weight:700; margin-top:5px;" onclick="document.getElementById('camera-input').click()">📷 사진 촬영</button>
         </div>
         <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
     </section>
@@ -153,9 +154,25 @@
         }
     }
 
+    // [개선] 층수 태그 전용 입력 (기존 층수 정보가 있으면 교체함)
+    function quickFillFloor(val) {
+        const input = document.getElementById('loc-input');
+        const floors = ['지하 1층', '지하 2층', '지하 3층', '지상 1층'];
+        let currentVal = input.value;
+        
+        // 기존 입력값에서 층수 키워드가 있는지 확인 후 교체
+        floors.forEach(f => {
+            currentVal = currentVal.replace(f, "").trim();
+        });
+        
+        input.value = (val + " " + currentVal).trim();
+    }
+
     function quickFill(val) {
         const input = document.getElementById('loc-input');
-        input.value = input.value ? input.value + " " + val : val;
+        if (!input.value.includes(val)) {
+            input.value = (input.value + " " + val).trim();
+        }
     }
 
     document.getElementById('camera-input').onchange = function(e) {
@@ -173,7 +190,7 @@
                     canvas.width = w; canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     currentImgBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    showToast("📸 사진이 준비되었습니다.");
+                    showToast("📸 사진 촬영 완료");
                 };
             };
             reader.readAsDataURL(file);
@@ -182,8 +199,12 @@
 
     function saveData() {
         if (!marker) return showToast("GPS 신호를 기다려주세요.");
+        const now = new Date();
         const record = {
-            id: Date.now(), timestamp: Date.now(),
+            id: Date.now(), 
+            timestamp: now.getTime(),
+            // [개선] 연월일시 포맷팅
+            formattedTime: `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}. ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`,
             location: document.getElementById('loc-input').value || "지하 주차장",
             memo: document.getElementById('memo-input').value || "",
             photo: currentImgBase64, lat: marker.getLatLng().lat, lng: marker.getLatLng().lng
@@ -194,7 +215,7 @@
         
         render();
         sendNotification(record);
-        showToast("✅ 주차 기록이 저장되었습니다!");
+        showToast("✅ 주차 정보 저장 완료!");
         
         document.getElementById('loc-input').value = "";
         document.getElementById('memo-input').value = "";
@@ -206,11 +227,10 @@
         const area = document.getElementById('hero-area');
         if (parkingHistory.length === 0) return;
         const latest = parkingHistory[0];
-        const elapsed = Math.floor((Date.now() - latest.timestamp) / 60000);
         
         area.innerHTML = `
             <div class="hero-card">
-                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">⏱ ${elapsed}분 전 주차함</div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">🗓 ${latest.formattedTime}</div>
                 ${latest.photo ? `<img src="${latest.photo}" class="hero-img">` : ''}
                 <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 4px;">${latest.location}</h2>
                 <p style="color:var(--muted); font-size: 14px;">${latest.memo}</p>
@@ -255,10 +275,11 @@
     function sendNotification(record) {
         if (Notification.permission === "granted" && 'serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification(`🅿️ 주차 위치 확인`, {
-                    body: `${record.location}에 주차되었습니다.`,
+                reg.showNotification(`🅿️ 주차 위치: ${record.location}`, {
+                    body: `${record.formattedTime}에 기록되었습니다.`,
                     image: record.photo,
-                    tag: 'parking-info'
+                    tag: 'parking-info',
+                    requireInteraction: true
                 });
             });
         }
