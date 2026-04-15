@@ -66,7 +66,7 @@
             box-shadow: 0 6px 16px rgba(79, 142, 247, 0.2);
         }
 
-        /* 최신 주차 카드 (사진이 크게 나오는 메인 영역) */
+        /* 기록 카드 */
         .latest-record { padding: 25px 15px; }
         .elapsed-badge { background: var(--primary); color: white; padding: 6px 12px; border-radius: 12px; font-size: 15px; font-weight: 800; display: inline-block; margin-bottom: 12px; }
         .latest-card { background: var(--card); border-radius: var(--radius); padding: 22px; border: 2px solid var(--primary); box-shadow: 0 12px 30px rgba(79,142,247,0.15); }
@@ -74,28 +74,26 @@
         .latest-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
         .latest-memo { font-size: 14px; color: var(--primary); font-weight: 600; background: var(--accent); padding: 12px; border-radius: 12px; }
 
-        /* 히스토리 리스트 (사진 크기 수정 핵심 부분) */
         .history-section { padding-top: 10px; }
         .section-header { padding: 0 20px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
         .history-list { padding: 0 15px; }
         .history-item-container { position: relative; margin-bottom: 12px; border-radius: 18px; background: var(--danger); overflow: hidden; }
-        
         .history-card { 
             background: var(--card); border-radius: 18px; padding: 12px; display: flex; gap: 15px; align-items: center; 
-            border: 1px solid var(--border); position: relative; z-index: 2; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid var(--border); position: relative; z-index: 2; transition: transform 0.3s;
         }
-        
-        /* 히스토리 사진 크기 고정 */
-        .h-img { 
-            width: 55px; height: 55px; min-width: 55px; min-height: 55px; 
-            border-radius: 10px; object-fit: cover; border: 1px solid var(--border); 
-        }
-        
+        .h-img { width: 55px; height: 55px; min-width: 55px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); }
         .h-content { flex: 1; min-width: 0; }
         .h-loc { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .h-meta { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
-        
         .swipe-delete-btn { position: absolute; top: 0; right: 0; height: 100%; width: 85px; background: var(--danger); color: white; border: none; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1; }
+
+        /* 배터리/안내 모달 */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 20px; max-width: 400px; width: 100%; text-align: center; }
+        .modal-content h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary); }
+        .modal-content p { font-size: 14px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+        .modal-btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; }
 
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; }
         #lightbox-img { max-width: 95%; max-height: 90%; border-radius: 8px; }
@@ -146,26 +144,51 @@
     </main>
 </div>
 
+<div id="battery-modal" class="modal">
+    <div class="modal-content">
+        <h2>🔋 배터리 최적화 해제 안내</h2>
+        <p>잠금화면에서 주차 정보를 실시간으로 확인하려면<br><b>[설정 > 앱 > ParkNote Pro > 배터리]</b>에서<br><b>'제한 없음'</b> 옵션을 선택해 주세요.</p>
+        <button class="modal-btn" onclick="closeBatteryModal()">확인했습니다</button>
+    </div>
+</div>
+
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src=""></div>
 <div class="toast" id="toast">저장 완료</div>
+
+<audio id="silent-audio" loop>
+    <source src="https://raw.githubusercontent.com/anars/blank-audio/master/10-seconds-of-silence.mp3" type="audio/mp3">
+</audio>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, marker, currentImgBase64 = "";
     let parkingHistory = [];
-    let startX = 0, currentX = 0, activeContainer = null;
+    let startX = 0, currentX = 0;
 
     window.onload = function() {
         initMap();
         loadHistory();
+        checkBatteryOptimization();
         setInterval(updateTimeAndAlarms, 30000);
     };
 
     function triggerVibration(type) {
         if (!navigator.vibrate) return;
-        if (type === 'success') navigator.vibrate(50);
-        if (type === 'delete') navigator.vibrate([30, 50, 30]);
-        if (type === 'notify') navigator.vibrate([100, 100, 100]);
+        if (type === 'success') navigator.vibrate(70);
+        if (type === 'delete') navigator.vibrate([50, 50, 50]);
+        if (type === 'notify') navigator.vibrate([500, 200, 500]);
+    }
+
+    function checkBatteryOptimization() {
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        if (isPWA && !localStorage.getItem('battery_guide_shown')) {
+            document.getElementById('battery-modal').style.display = 'flex';
+        }
+    }
+
+    function closeBatteryModal() {
+        localStorage.setItem('battery_guide_shown', 'true');
+        document.getElementById('battery-modal').style.display = 'none';
     }
 
     function initMap() {
@@ -176,9 +199,8 @@
                 const lat = pos.coords.latitude, lng = pos.coords.longitude;
                 if (!marker) { marker = L.marker([lat, lng]).addTo(map); map.setView([lat, lng], 17); }
                 else { marker.setLatLng([lat, lng]); }
-                const badge = document.getElementById('gps-status');
-                badge.textContent = "연결됨 (" + Math.round(pos.coords.accuracy) + "m)";
-                badge.classList.add('ready');
+                document.getElementById('gps-status').textContent = "연결됨";
+                document.getElementById('gps-status').classList.add('ready');
             }, null, { enableHighAccuracy: false });
         }
     }
@@ -187,8 +209,7 @@
         const file = e.target.files[0];
         if (file) {
             triggerVibration('success');
-            const txt = document.getElementById('cam-text');
-            txt.textContent = "처리 중";
+            document.getElementById('cam-text').textContent = "처리 중";
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
@@ -199,16 +220,30 @@
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     currentImgBase64 = canvas.toDataURL('image/jpeg', 0.5);
                     document.getElementById('cam-btn').classList.add('cam-done');
-                    txt.textContent = "촬영 완료";
+                    document.getElementById('cam-text').textContent = "촬영 완료";
                 };
             };
             reader.readAsDataURL(file);
         }
     });
+
+    async function updateMediaSession(record) {
+        if ('mediaSession' in navigator) {
+            try {
+                const audio = document.getElementById('silent-audio');
+                await audio.play();
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: `🅿️ 주차: ${record.location}`,
+                    artist: `시간: ${calculateElapsed(record.timestamp)}`,
+                    album: record.memo,
+                    artwork: [{ src: record.photo || '', sizes: '512x512', type: 'image/jpeg' }]
+                });
+            } catch (err) { console.log("미디어 세션 활성화 실패"); }
+        }
+    }
 
     function saveData() {
         if (!marker) { showToast("GPS 연결 대기 중..."); return; }
@@ -216,14 +251,11 @@
         const customAlarm = document.getElementById('alarm-time-picker').value;
         const now = Date.now();
         const newRecord = {
-            id: now,
-            timestamp: now,
+            id: now, timestamp: now,
             location: document.getElementById('loc-input').value || "미지정 구역",
             memo: document.getElementById('memo-input').value || "메모 없음",
             timeStr: new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-            photo: currentImgBase64,
-            lat: marker.getLatLng().lat,
-            lng: marker.getLatLng().lng,
+            photo: currentImgBase64, lat: marker.getLatLng().lat, lng: marker.getLatLng().lng,
             alarmTime: customAlarm ? new Date(customAlarm).getTime() : null,
             alarmDone: false
         };
@@ -231,6 +263,7 @@
         if (parkingHistory.length > 10) parkingHistory.pop();
         localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
         renderHistory();
+        updateMediaSession(newRecord);
         showToast("저장 완료");
         resetForm();
     }
@@ -246,18 +279,21 @@
 
     function calculateElapsed(ts) {
         const diff = Date.now() - ts;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const hours = Math.floor(diff / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
         return hours > 0 ? `${hours}시간 ${mins}분 경과` : `${mins}분 경과`;
     }
 
     function updateTimeAndAlarms() {
-        if (parkingHistory.length > 0) renderHistory();
+        if (parkingHistory.length > 0) {
+            renderHistory();
+            updateMediaSession(parkingHistory[0]);
+        }
         const now = Date.now();
         parkingHistory.forEach(i => {
             if (i.alarmTime && !i.alarmDone && now > i.alarmTime) {
                 triggerVibration('notify');
-                alert(`🔔 출차 알람!\n[${i.location}] 설정 시간이 되었습니다.`);
+                alert(`🔔 출차 알람!\n[${i.location}] 시간입니다.`);
                 i.alarmDone = true;
                 localStorage.setItem('parkNoteHistory', JSON.stringify(parkingHistory));
             }
@@ -277,11 +313,7 @@
         latestCard.className = 'latest-card';
         latestCard.onclick = () => { map.setView([latest.lat, latest.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); };
         
-        let alarmBadge = "";
-        if (latest.alarmTime && !latest.alarmDone) {
-            const ad = new Date(latest.alarmTime);
-            alarmBadge = `<div style="font-size:12px; color:var(--danger); font-weight:700; margin-bottom:8px;">🔔 알람 예약: ${ad.getHours()}:${ad.getMinutes().toString().padStart(2, '0')}</div>`;
-        }
+        let alarmBadge = (latest.alarmTime && !latest.alarmDone) ? `<div style="font-size:12px; color:var(--danger); font-weight:700; margin-bottom:8px;">🔔 알람: ${new Date(latest.alarmTime).getHours()}:${new Date(latest.alarmTime).getMinutes().toString().padStart(2, '0')}</div>` : "";
 
         latestCard.innerHTML = `
             <div class="elapsed-badge">⏱ ${calculateElapsed(latest.timestamp)}</div>
@@ -289,7 +321,6 @@
             ${latest.photo ? `<img src="${latest.photo}" class="latest-img" onclick="openLightbox(event, '${latest.photo}')">` : ''}
             <div class="latest-title">${latest.location}</div>
             <div class="latest-memo">${latest.memo}</div>
-            <div style="font-size:11px; color:var(--muted); margin-top:10px;">저장 시각: ${latest.timeStr}</div>
         `;
         latestDiv.appendChild(latestCard);
 
@@ -299,23 +330,12 @@
                 const item = parkingHistory[i];
                 const cont = document.createElement('div'); cont.className = 'history-item-container';
                 const card = document.createElement('div'); card.className = 'history-card';
-                card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; card.style.transition = 'none'; });
-                card.addEventListener('touchmove', (e) => { currentX = e.touches[0].clientX; let diff = currentX - startX; if (diff < 0 && diff > -100) card.style.transform = `translateX(${diff}px)`; });
-                card.addEventListener('touchend', () => { card.style.transition = '0.3s'; if (currentX - startX < -50) { card.style.transform = 'translateX(-85px)'; activeContainer = cont; } else { card.style.transform = 'translateX(0px)'; } });
-                
-                card.onclick = () => { if(card.style.transform === "translateX(0px)" || !card.style.transform) { map.setView([item.lat, item.lng], 18); window.scrollTo({top:0, behavior:'smooth'}); } };
-                
-                const imgSource = item.photo || 'https://via.placeholder.com/60';
-                card.innerHTML = `
-                    <img src="${imgSource}" class="h-img" onclick="openLightbox(event, '${item.photo}')">
-                    <div class="h-content">
-                        <div class="h-meta">${item.timeStr}</div>
-                        <div class="h-loc">${item.location}</div>
-                    </div>
-                `;
-                
+                card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+                card.addEventListener('touchmove', (e) => { currentX = e.touches[0].clientX; let diff = currentX - startX; if (diff < 0) card.style.transform = `translateX(${diff}px)`; });
+                card.addEventListener('touchend', () => { if (currentX - startX < -50) card.style.transform = 'translateX(-85px)'; else card.style.transform = 'translateX(0px)'; });
+                card.innerHTML = `<img src="${item.photo || ''}" class="h-img" onclick="openLightbox(event, '${item.photo}')"><div class="h-content"><div class="h-meta">${item.timeStr}</div><div class="h-loc">${item.location}</div></div>`;
                 const delBtn = document.createElement('button'); delBtn.className = 'swipe-delete-btn'; delBtn.textContent = "삭제";
-                delBtn.onclick = (e) => { e.stopPropagation(); triggerVibration('delete'); deleteRecord(item.id); };
+                delBtn.onclick = () => { triggerVibration('delete'); deleteRecord(item.id); };
                 cont.appendChild(card); cont.appendChild(delBtn); listDiv.appendChild(cont);
             }
         }
